@@ -38,6 +38,7 @@
         "port": 4400,
         "configDir": "libs/design-system-lib/.storybook",
         "browserTarget": "design-system-lib:build-storybook",
+        "styles": ["libs/design-system-lib/src/styles.css"],
         "compodoc": false
       },
       "configurations": {

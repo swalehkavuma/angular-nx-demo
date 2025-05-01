@@ -1,36 +1,42 @@
 import type { StorybookConfig } from '@storybook/angular';
+import type { RuleSetRule } from 'webpack';
 
 const config: StorybookConfig = {
   stories: ['../**/*.@(mdx|stories.@(js|jsx|ts|tsx))'],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
-    {
-      name: '@storybook/addon-styling-webpack'
-    }
   ],
   framework: {
     name: '@storybook/angular',
-    options: {
-      rules: [
-        // Replaces existing CSS rules to support PostCSS
-        {
-          test: /\.css$/,
-          use: [
-            'style-loader',
-            {
-              loader: 'css-loader',
-              options: { importLoaders: 1 }
-            },
-            //'postcss-loader',
-            {
-              loader: 'postcss-loader',
-            }
-          ],
-        }
-      ]
-    },
+    options: {},
   },
+  webpackFinal: async (config) => {
+    const cssRule: RuleSetRule = {
+      test: /\.css$/,
+      resourceQuery: { not: [/ngResource/, /ngGlobalStyle/] },
+      use: [
+        require.resolve('style-loader'),
+        {
+          loader: require.resolve('css-loader'),
+          options: { importLoaders: 1 },
+        },
+        {
+          loader: require.resolve('postcss-loader'),
+          options: {
+            postcssOptions: {
+              plugins: [
+                require('@tailwindcss/postcss')(),
+              ],
+            },
+          },
+        },
+      ],
+    };
+
+    config?.module?.rules?.push(cssRule);
+    return config;
+  }
 };
 
 export default config;
